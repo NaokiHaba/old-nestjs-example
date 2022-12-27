@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import config from '../config/configuration';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import config from '../config/configuration';
       database: config().database.database,
       entities: ['dist/**/entities/**/*.entity.js'],
       migrations: ['dist/**/migrations/**/*.js'],
+      synchronize: true,
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
