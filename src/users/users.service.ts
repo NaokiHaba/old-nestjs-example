@@ -11,26 +11,24 @@ export class UsersService {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  /**
-   *
-   * @param name userName
-   * @param email userEmailAddress
-   */
-  async create({ name, email }: CreateUserDto): Promise<User> {
+  async create({ name }: CreateUserDto): Promise<User> {
     return await this.userRepository
       .save({
         name: name,
-        email: email,
       })
       .catch((e) => {
         throw new InternalServerErrorException(
-          `[${e.message}]：アカウントの登録に失敗しました。`,
+          `[${e.message}]：ユーザーの登録に失敗しました。`,
         );
       });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(): Promise<User[]> {
+    return await this.userRepository.find().catch((e) => {
+      throw new InternalServerErrorException(
+        `[${e.message}]：ユーザーの取得に失敗しました。`,
+      );
+    });
   }
 
   findOne(id: number) {

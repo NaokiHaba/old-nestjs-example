@@ -20,16 +20,6 @@ describe('UsersController', () => {
           provide: getRepositoryToken(User),
           useClass: Repository,
         },
-        {
-          provide: UsersService,
-          useValue: {
-            create: jest
-              .fn()
-              .mockImplementation((user: CreateUserDto) =>
-                Promise.resolve({ id: '1', ...user }),
-              ),
-          },
-        },
       ],
     }).compile();
 
@@ -46,16 +36,46 @@ describe('UsersController', () => {
     it('should create a user', () => {
       const dto: CreateUserDto = {
         name: '太郎',
-        email: 'test@example.co.jp',
       };
 
-      controller.create(dto);
+      jest
+        .spyOn(service, 'create')
+        .mockImplementation(async (dto: CreateUserDto) => {
+          const user: User = {
+            id: 1,
+            ...dto,
+          };
+          return user;
+        });
+
       expect(controller.create(dto)).resolves.toEqual({
-        id: '1',
+        id: 1,
         ...dto,
       });
+    });
+  });
 
-      expect(service.create).toHaveBeenCalledWith(dto);
+  describe('findAll()', () => {
+    it('should return users', () => {
+      const user: User = {
+        id: 1,
+        name: '太郎',
+      };
+
+      jest.spyOn(service, 'findAll').mockImplementation(async () => {
+        return [user];
+      });
+
+      expect(controller.findAll()).resolves.toEqual([user]);
+    });
+    it('should return empty array by Not found users', () => {
+      const user: User[] = [];
+
+      jest.spyOn(service, 'findAll').mockImplementation(async () => {
+        return user;
+      });
+
+      expect(controller.findAll()).resolves.toEqual(user);
     });
   });
 });
