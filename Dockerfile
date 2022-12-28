@@ -29,6 +29,4 @@ USER node
 
 EXPOSE 3000
 
-ENV NODE_ENV prod
-
 CMD ["node", "dist/src/main"]
