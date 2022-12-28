@@ -10,11 +10,7 @@ export class User {
   @Column('varchar', { comment: 'アカウント名' })
   name: string;
 
-  @Column('varchar', { comment: 'Email' })
-  email: string;
-
-  constructor(name: string, email: string) {
+  constructor(name: string) {
     this.name = name;
-    this.email = email;
   }
 }
