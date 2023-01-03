@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from '../config/configuration';
 import { UsersModule } from './users/users.module';
 
@@ -13,18 +13,20 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       load: [config],
     }),
-    // 環境変数から取得することを推奨します
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: config().database.host,
-      port: config().database.port,
-      username: config().database.username,
-      password: config().database.password,
-      logging: true,
-      database: config().database.database,
-      entities: ['dist/**/entities/**/*.entity.js'],
-      migrations: ['dist/**/migrations/**/*.js'],
-      synchronize: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'mysql',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.name'),
+        entities: ['dist/**/entities/**/*.entity.js'],
+        synchronize: true,
+        logging: true,
+      }),
+      inject: [ConfigService],
     }),
     UsersModule,
   ],
