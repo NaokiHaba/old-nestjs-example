@@ -7,7 +7,6 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 
 describe('UsersController', () => {
-  let mockRepository: Repository<User>;
   let controller: UsersController;
   let service: UsersService;
 
@@ -23,13 +22,8 @@ describe('UsersController', () => {
       ],
     }).compile();
 
-    mockRepository = module.get<Repository<User>>(getRepositoryToken(User));
     controller = module.get<UsersController>(UsersController);
     service = module.get<UsersService>(UsersService);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
   });
 
   describe('create()', () => {
@@ -76,6 +70,33 @@ describe('UsersController', () => {
       });
 
       expect(controller.findAll()).resolves.toEqual(user);
+    });
+  });
+
+  describe('findOne()', () => {
+    it('should return user', () => {
+      const user: User = {
+        id: 1,
+        name: '太郎',
+      };
+
+      jest.spyOn(service, 'findOne').mockImplementation(async () => {
+        return user;
+      });
+
+      expect(controller.findOne(1)).resolves.toEqual(user);
+    });
+
+    it('should return not found exception', () => {
+      jest.spyOn(service, 'findOne').mockRejectedValue({
+        statusCode: 404,
+        message: 'Not Found',
+      });
+
+      expect(controller.findOne(2)).rejects.toEqual({
+        statusCode: 404,
+        message: 'Not Found',
+      });
     });
   });
 });
